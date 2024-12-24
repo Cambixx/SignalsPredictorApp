@@ -8,14 +8,40 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var signalsViewModel = SignalsViewModel()
+    @StateObject private var settingsViewModel = SettingsViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack {
+                SignalsView()
+            }
+            .tabItem {
+                Label("Señales", systemImage: "bell.fill")
+            }
+            
+            NavigationStack {
+                PredictionsView()
+            }
+            .tabItem {
+                Label("Predicciones", systemImage: "chart.xyaxis.line")
+            }
+            
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Label("Ajustes", systemImage: "gear")
+            }
         }
-        .padding()
+        .preferredColorScheme(settingsViewModel.isDarkMode ? .dark : .light)
+        .task {
+            do {
+                try await NotificationManager.shared.requestAuthorization()
+            } catch {
+                print("Error requesting notification authorization:", error)
+            }
+        }
     }
 }
 
